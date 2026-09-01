@@ -672,9 +672,8 @@ const factory = (NaclUtil) => {
     };
 
     Util.stripTags = function (text) {
-        var div = document.createElement("div");
-        div.innerHTML = text;
-        return div.innerText;
+        var doc = new DOMParser().parseFromString(text, 'text/html');
+        return doc.body.textContent || "";
     };
 
     // return an object containing {name, ext}
