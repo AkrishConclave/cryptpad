@@ -17,6 +17,10 @@ var Env = Environment.create(config);
 var Default = require("./lib/defaults");
 
 var app = Express();
+// Trust the proxy to correctly resolve client IPs (e.g., for rate limiting) if configured
+if (Env.trustProxy !== false) {
+    app.set('trust proxy', Env.trustProxy);
+}
 
 (function () {
     // you absolutely must provide an 'httpUnsafeOrigin' (a truthy string)
