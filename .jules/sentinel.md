@@ -15,3 +15,7 @@
 **Vulnerability:** Client IP addresses are not correctly resolved when the application runs behind a reverse proxy, potentially breaking IP-based security measures like rate limiting.
 **Learning:** Express applications in this repository must use a configurable setting (e.g., `trustProxy` from configuration) to safely enable IP resolution behind a reverse proxy, avoiding IP spoofing.
 **Prevention:** Make `trust proxy` configurable and default to `false` (disabled) unless explicitly enabled in the environment.
+## 2024-10-25 - [Mutation XSS in renderMathjax via .innerHTML]
+**Vulnerability:** Found a Mutation XSS (mXSS) vulnerability in `renderMathjax` within `www/common/diffMarked.js`. The function modified an SVG's raw string using Regex (`svg.innerHTML.replace(/xlink:href/g, "href")`) and then directly assigned the string to `.innerHTML`.
+**Learning:** Directly manipulating raw HTML strings and assigning them back to `.innerHTML` is a vector for Mutation XSS. When parsing SVGs (or any DOM content), the browser's DOM parser can be tricked by maliciously crafted strings that serialize and deserialize unexpectedly. Furthermore, when selecting attributes with colons like `xlink:href` via `querySelectorAll`, they must be escaped as `[xlink\:href]`; using `[*|href]` throws a `SyntaxError` and crashes script execution.
+**Prevention:** Avoid assigning raw manipulated strings to `.innerHTML`. Instead, use safer DOM manipulation methods (`getAttribute`, `removeAttribute`, `setAttribute`, and `.appendChild()`) to interact with DOM nodes directly.

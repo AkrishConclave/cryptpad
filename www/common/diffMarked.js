@@ -558,10 +558,22 @@ define([
             var code = el.getAttribute("mathjax-source");
             var svg = Mathjax.tex2svg(code, {display: true});
             if (!svg) { return; }
-            svg.innerHTML = svg.innerHTML.replace(/xlink:href/g, "href");
+
+            // Safely convert xlink:href to href
+            var elements = svg.querySelectorAll('[xlink\\:href]');
+            for (var i = 0; i < elements.length; i++) {
+                var href = elements[i].getAttribute('xlink:href');
+                if (href) {
+                    elements[i].removeAttribute('xlink:href');
+                    elements[i].setAttribute('href', href);
+                }
+            }
+
             var wrapper = document.createElement('span');
-            wrapper.innerHTML = svg.innerHTML;
-            el.innerHTML = wrapper.outerHTML;
+            wrapper.appendChild(svg);
+
+            while (el.firstChild) { el.removeChild(el.firstChild); }
+            el.appendChild(wrapper);
         }
     };
 
