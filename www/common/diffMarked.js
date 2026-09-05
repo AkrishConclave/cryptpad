@@ -191,7 +191,7 @@ define([
                 href: '#',
                 'data-href': obj.id,
             });
-            a.innerHTML = obj.title;
+            a.textContent = obj.title;
             content.push(h('p.cp-md-toc-'+level, ['• ',  a]));
         });
         return h('div.cp-md-toc', content).outerHTML;
