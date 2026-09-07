@@ -254,7 +254,7 @@ define([
         toc.push({
             level: level,
             id: id,
-            title: Util.stripTags(text)
+            title: Util.fixHTML(Util.stripTags(text))
         });
         return "<h" + level + " id=\"" + id + "\"><a href=\"#" + id + "\" class=\"anchor\"></a>" + text + "</h" + level + ">";
     };
