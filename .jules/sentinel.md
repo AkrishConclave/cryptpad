@@ -23,3 +23,7 @@
 **Vulnerability:** Found a Cross-Site Scripting (XSS) vulnerability in Table of Contents (TOC) rendering (`www/common/diffMarked.js` and `www/pad/inner.js`). The text processed by `Util.stripTags` was being inserted directly into the DOM using `.innerHTML`.
 **Learning:** `Util.stripTags` returns a string that may contain unescaped HTML characters (like `<` or `>`) if the DOM parser decides they are just text nodes. When this raw string is passed back to `.innerHTML` in another context, it can be parsed as HTML again, resulting in DOM-based XSS.
 **Prevention:** Always use `.textContent` (or equivalent safe manipulation like `document.createTextNode`) instead of `.innerHTML` when inserting text into a DOM node, especially after it has been stripped or processed.
+## 2026-09-08 - Error Serialization Stack Trace Leak
+**Vulnerability:** `Util.serializeError` in `src/common/common-util.js` serialized all properties of an Error object, including the `stack` trace. This is used in API responses and logs.
+**Learning:** Returning full stack traces to the client can leak internal server details, file paths, and application structure, aiding in reconnaissance for further attacks. This violates the principle of failing securely.
+**Prevention:** Always explicitly filter out sensitive properties like `stack` when serializing errors meant to be sent out over network or returned to clients.

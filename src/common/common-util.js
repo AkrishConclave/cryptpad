@@ -66,6 +66,9 @@ const factory = (NaclUtil) => {
         if (!(err instanceof Error)) { return err; }
         var ser = {};
         Object.getOwnPropertyNames(err).forEach(function (key) {
+            // SECURITY: Do not serialize the stack trace as it can leak internal
+            // server details and directory structure to the client.
+            if (key === 'stack') { return; }
             ser[key] = err[key];
         });
         return ser;
