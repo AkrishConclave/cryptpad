@@ -66,7 +66,10 @@ const factory = (NaclUtil) => {
         if (!(err instanceof Error)) { return err; }
         var ser = {};
         Object.getOwnPropertyNames(err).forEach(function (key) {
-            ser[key] = err[key];
+            // SECURITY: Do not leak stack traces to clients
+            if (key !== 'stack') {
+                ser[key] = err[key];
+            }
         });
         return ser;
     };
