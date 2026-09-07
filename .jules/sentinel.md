@@ -35,3 +35,7 @@
 **Vulnerability:** `Util.serializeError` in `src/common/common-util.js` serialized all properties of an Error object, including the `stack` trace. This is used in API responses and logs.
 **Learning:** Returning full stack traces to the client can leak internal server details, file paths, and application structure, aiding in reconnaissance for further attacks. This violates the principle of failing securely.
 **Prevention:** Always explicitly filter out sensitive properties like `stack` when serializing errors meant to be sent out over network or returned to clients.
+## 2024-12-08 - [Information Exposure in Util.serializeError]
+**Vulnerability:** Found an Information Exposure vulnerability in `Util.serializeError` within `src/common/common-util.js`. The function serialized all properties of an Error object, including the `stack` trace, and sent it to clients.
+**Learning:** Returning full error stack traces in RPC or API responses leaks internal application structure, server file paths, and potentially other sensitive execution context details to untrusted clients. This is a common pattern in NodeJS applications where custom error serialization doesn't explicitly filter properties.
+**Prevention:** Always explicitly filter or omit sensitive properties like `stack` when serializing errors for client consumption. Only return necessary, generic error messages or safe error codes.
