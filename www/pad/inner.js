@@ -805,7 +805,7 @@ define([
             return el.getAttribute('id') ||
                 el.getAttribute('data-cke-saved-name') ||
                 el.getAttribute('name') ||
-                Util.stripTags($(el).text());
+                Util.fixHTML(Util.stripTags($(el).text()));
         };
 
         var updatePageMode = function () {
@@ -880,7 +880,7 @@ define([
                 toc.push({
                     level: Number(el.tagName.slice(1)),
                     el: el,
-                    title: Util.stripTags($(el).text())
+                    title: Util.fixHTML(Util.stripTags($(el).text()))
                 });
             });
             var hideBtn = h('button.btn.btn-default.cp-pad-hide', Icons.get('chevron-left'));
