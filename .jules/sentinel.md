@@ -1,3 +1,7 @@
+## 2024-05-18 - [Prevent Stack Trace Leakage in Error Serialization]
+**Vulnerability:** The `Util.serializeError` function in `src/common/common-util.js` iterated over all properties of an Error object and copied them, which meant the sensitive `stack` property (containing internal directory paths and server information) was leaked if serialized errors were sent back to the client.
+**Learning:** Generic object copying routines (`Object.getOwnPropertyNames` loop) on errors will serialize stack traces. This is particularly dangerous for Node.js backends communicating with clients.
+**Prevention:** Always explicitly omit the `stack` property or selectively pick only safe properties (like `name` and `message`) when serializing errors meant for potential external consumption or logging in multi-tenant environments.
 ## 2026-09-01 - Missing rate limiting on Auth & File Upload endpoints
 **Vulnerability:** No rate limit on `/api/auth` (RPC for authentication and commands) or `/upload-blob` (file upload).
 **Learning:** Adding brute force protections on top of Express with `helmet` and `express-rate-limit` requires adjusting the rate limit max based on RPC design, and ensuring `trust proxy` is enabled since it's deployed behind reverse proxies. CryptPad specifically requires `X-Frame-Options` to be unset (disabled) when using helmet since it utilizes cross-origin iframes.
@@ -19,6 +23,10 @@
 **Vulnerability:** Found a Mutation XSS (mXSS) vulnerability in `renderMathjax` within `www/common/diffMarked.js`. The function modified an SVG's raw string using Regex (`svg.innerHTML.replace(/xlink:href/g, "href")`) and then directly assigned the string to `.innerHTML`.
 **Learning:** Directly manipulating raw HTML strings and assigning them back to `.innerHTML` is a vector for Mutation XSS. When parsing SVGs (or any DOM content), the browser's DOM parser can be tricked by maliciously crafted strings that serialize and deserialize unexpectedly. Furthermore, when selecting attributes with colons like `xlink:href` via `querySelectorAll`, they must be escaped as `[xlink\:href]`; using `[*|href]` throws a `SyntaxError` and crashes script execution.
 **Prevention:** Avoid assigning raw manipulated strings to `.innerHTML`. Instead, use safer DOM manipulation methods (`getAttribute`, `removeAttribute`, `setAttribute`, and `.appendChild()`) to interact with DOM nodes directly.
+## 2026-11-20 - [Information Exposure via Error Serialization]
+**Vulnerability:** Found an Information Exposure vulnerability in `Util.serializeError` within `src/common/common-util.js`. The function copied all properties of an `Error` object, including the `stack` trace, which was then sent to clients in error responses (e.g. from `/api/auth`).
+**Learning:** Returning stack traces to clients leaks sensitive internal server details and directory structures which can be used by attackers. Error serialization functions should explicitly exclude sensitive properties.
+**Prevention:** Explicitly ignore the `stack` property when serializing errors meant for client consumption by filtering it out during the serialization process.
 ## 2024-11-20 - [DOM-based XSS in TOC via innerHTML]
 **Vulnerability:** Found a Cross-Site Scripting (XSS) vulnerability in Table of Contents (TOC) rendering (`www/common/diffMarked.js` and `www/pad/inner.js`). The text processed by `Util.stripTags` was being inserted directly into the DOM using `.innerHTML`.
 **Learning:** `Util.stripTags` returns a string that may contain unescaped HTML characters (like `<` or `>`) if the DOM parser decides they are just text nodes. When this raw string is passed back to `.innerHTML` in another context, it can be parsed as HTML again, resulting in DOM-based XSS.
