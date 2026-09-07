@@ -1,3 +1,7 @@
+## 2024-05-18 - [Prevent Stack Trace Leakage in Error Serialization]
+**Vulnerability:** The `Util.serializeError` function in `src/common/common-util.js` iterated over all properties of an Error object and copied them, which meant the sensitive `stack` property (containing internal directory paths and server information) was leaked if serialized errors were sent back to the client.
+**Learning:** Generic object copying routines (`Object.getOwnPropertyNames` loop) on errors will serialize stack traces. This is particularly dangerous for Node.js backends communicating with clients.
+**Prevention:** Always explicitly omit the `stack` property or selectively pick only safe properties (like `name` and `message`) when serializing errors meant for potential external consumption or logging in multi-tenant environments.
 ## 2026-09-01 - Missing rate limiting on Auth & File Upload endpoints
 **Vulnerability:** No rate limit on `/api/auth` (RPC for authentication and commands) or `/upload-blob` (file upload).
 **Learning:** Adding brute force protections on top of Express with `helmet` and `express-rate-limit` requires adjusting the rate limit max based on RPC design, and ensuring `trust proxy` is enabled since it's deployed behind reverse proxies. CryptPad specifically requires `X-Frame-Options` to be unset (disabled) when using helmet since it utilizes cross-origin iframes.
