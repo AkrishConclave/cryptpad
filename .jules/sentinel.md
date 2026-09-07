@@ -35,3 +35,7 @@
 **Vulnerability:** Found a Cross-Site Scripting (XSS) vulnerability in TOC rendering (`www/common/diffMarked.js` and `www/pad/inner.js`) due to unescaped HTML entities returned by `Util.stripTags()`. Also found Information Exposure vulnerability in `Util.serializeError()` leaking the `stack` trace.
 **Learning:** `Util.stripTags` returns a string that may contain unescaped HTML characters. Also, standard error objects shouldn't serialize the stack trace by default.
 **Prevention:** Use `Util.fixHTML(Util.stripTags(...))` to escape entities before rendering. Skip the `stack` property during error serialization.
+## 2024-12-08 - [Information Exposure in Util.serializeError]
+**Vulnerability:** Found an Information Exposure vulnerability in `Util.serializeError` within `src/common/common-util.js`. The function serialized all properties of an Error object, including the `stack` trace, and sent it to clients.
+**Learning:** Returning full error stack traces in RPC or API responses leaks internal application structure, server file paths, and potentially other sensitive execution context details to untrusted clients. This is a common pattern in NodeJS applications where custom error serialization doesn't explicitly filter properties.
+**Prevention:** Always explicitly filter or omit sensitive properties like `stack` when serializing errors for client consumption. Only return necessary, generic error messages or safe error codes.

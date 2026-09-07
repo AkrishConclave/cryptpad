@@ -65,6 +65,8 @@ const factory = (NaclUtil) => {
     Util.serializeError = function (err) {
         if (!(err instanceof Error)) { return err; }
         var ser = {};
+        // 🛡️ Sentinel: Prevent Information Exposure by filtering out the 'stack' property.
+        // Stack traces can leak internal file paths and server details to the client.
         Object.getOwnPropertyNames(err).forEach(function (key) {
             if (key !== 'stack') {
                 ser[key] = err[key];
